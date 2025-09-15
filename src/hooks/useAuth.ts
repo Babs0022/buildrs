@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useAccount } from 'wagmi';
+import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import {
   getAuth,
   signInWithCustomToken,
@@ -12,7 +12,6 @@ import {
 } from 'firebase/auth';
 import axios from 'axios';
 import { auth } from '@/lib/firebase';
-import { useWallet } from '@coinbase/onchainkit/wallet';
 
 type UseAuthReturn = {
   address: `0x${string}` | undefined;
@@ -25,7 +24,8 @@ type UseAuthReturn = {
 
 export function useAuth(): UseAuthReturn {
   const { address, isConnected } = useAccount();
-  const { connect, disconnect } = useWallet();
+  const { connectAsync } = useConnect();
+  const { disconnectAsync } = useDisconnect();
   const [isFirebaseAuthenticated, setIsFirebaseAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
 
@@ -64,12 +64,14 @@ export function useAuth(): UseAuthReturn {
   }, [isConnected, address, isFirebaseAuthenticated]);
 
   const handleSignIn = async () => {
-    await connect();
+    // wagmi's connect opens a modal, so we don't need to do much here
+    // but we can wrap it in case we want to add logic later.
+    // This function might not be strictly necessary if the button itself can trigger the connection.
   };
 
   const handleSignOut = async () => {
     await signOut(auth);
-    await disconnect();
+    await disconnectAsync();
   };
 
   return {
