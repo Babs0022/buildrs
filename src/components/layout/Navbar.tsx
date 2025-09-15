@@ -1,54 +1,55 @@
+'use client';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/hooks/useAuth';
+import Image from 'next/image';
+import Link from 'next/link';
 
-"use client";
-
-import Link from "next/link";
-import { useState, useEffect } from "react";
-import { useAuth } from "@/hooks/useAuth";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
-import { Button } from "@/components/ui/button";
-import ClientOnlyWallet from "./ClientOnlyWallet";
-
-export default function Navbar() {
-  const { address, isConnected, isFirebaseAuthenticated } = useAuth();
-  const [profileExists, setProfileExists] = useState(false);
-
-  useEffect(() => {
-    const checkProfile = async () => {
-      if (isConnected && address && isFirebaseAuthenticated) {
-        const profileRef = doc(db, "profiles", address);
-        const docSnap = await getDoc(profileRef);
-        setProfileExists(docSnap.exists());
-      } else {
-        setProfileExists(false);
-      }
-    };
-
-    checkProfile();
-  }, [isConnected, address, isFirebaseAuthenticated]);
+export function Navbar() {
+  const { user, handleSignIn, handleSignOut } = useAuth();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 max-w-screen-2xl items-center">
-        <nav className="flex items-center space-x-6 text-sm font-medium">
-          <Link href="/" className="text-xl font-bold mr-4">BUILDRS</Link>
-          <Link href="/feed" className="transition-colors hover:text-foreground/80 text-foreground/60">Feed</Link>
-          <Link href="/leaderboard" className="transition-colors hover:text-foreground/80 text-foreground/60">Leaderboard</Link>
+    <header className="sticky top-0 z-50 w-full glass-effect">
+      <div className="container flex h-14 max-w-screen-2xl items-center justify-between">
+        <Link href="/" className="mr-6 flex items-center space-x-2">
+          <Image src="/logo.png" alt="BUILDRS" width={32} height={32} />
+          <span className="font-bold sm:inline-block">BUILDRS</span>
+        </Link>
+        <nav className="flex items-center gap-4 text-sm lg:gap-6">
+          <Link
+            href="/feed"
+            className="transition-colors hover:text-foreground/80 text-foreground/60"
+          >
+            Feed
+          </Link>
+          <Link
+            href="/leaderboard"
+            className="transition-colors hover:text-foreground/80 text-foreground/60"
+          >
+            Leaderboard
+          </Link>
+          {user && (
+            <Link
+              href="/profile"
+              className="transition-colors hover:text-foreground/80 text-foreground/60"
+            >
+              Profile
+            </Link>
+          )}
+          {user ? (
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={handleSignOut}
+              className="px-4"
+            >
+              Sign Out
+            </Button>
+          ) : (
+            <Button size="sm" onClick={handleSignIn} className="px-4">
+              Connect Wallet
+            </Button>
+          )}
         </nav>
-        <div className="flex flex-1 items-center justify-end space-x-4">
-          {isConnected && isFirebaseAuthenticated ? (
-            profileExists ? (
-              <Link href="/profile">
-                <Button variant="outline">Profile</Button>
-              </Link>
-            ) : (
-              <Link href="/signup">
-                <Button>Create Profile</Button>
-              </Link>
-            )
-          ) : null}
-          <ClientOnlyWallet />
-        </div>
       </div>
     </header>
   );

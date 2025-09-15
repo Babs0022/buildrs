@@ -24,6 +24,7 @@ export function ClientProviders({ children }: { children: ReactNode }) {
         <OnchainKitProvider
           apiKey={process.env.NEXT_PUBLIC_ONCHAINKIT_API_KEY}
           chain={base}
+          schemaId="0xf8b05c79f090979bf4a80270aba232d2198bb00f51c772e396d03c04d1a2fd20"
         >
           {children}
         </OnchainKitProvider>
