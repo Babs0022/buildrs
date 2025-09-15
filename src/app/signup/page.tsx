@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from 'react';
@@ -8,7 +7,9 @@ import { db } from '@/lib/firebase';
 import { doc, setDoc } from 'firebase/firestore';
 
 export default function SignupPage() {
-  const { address, isConnected } from useAuth();
+  const auth = useAuth();
+  const address = auth.address;
+  const isConnected = auth.isConnected;
   const router = useRouter();
   const [name, setName] = useState('');
   const [bio, setBio] = useState('');
