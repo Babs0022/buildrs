@@ -33,16 +33,28 @@ export default function SignupPage() {
     }
 
     try {
-      await setDoc(doc(db, 'profiles', address), {
+      // Helper to remove "@" prefix and construct URL
+      const constructUrl = (prefix: string, username: string) => {
+        if (!username) return "";
+        const cleanedUsername = username.startsWith('@') ? username.substring(1) : username;
+        return `${prefix}${cleanedUsername}`;
+      };
+
+      const profileData = {
         name,
         bio,
         socialLinks: {
-          twitter,
-          github,
-          farcaster,
+          twitter: constructUrl('https://twitter.com/', twitter),
+          github: constructUrl('https://github.com/', github),
+          farcaster: constructUrl('https://warpcast.com/', farcaster),
         },
         avatar: `https://api.dicebear.com/8.x/pixel-art/svg?seed=${address}`
-      });
+      };
+
+      console.log("Attempting to create profile for address:", address);
+      console.log("Profile data:", JSON.stringify(profileData, null, 2));
+
+      await setDoc(doc(db, 'profiles', address), profileData);
       router.push('/profile');
     } catch (err) {
       console.error(err);
@@ -80,33 +92,36 @@ export default function SignupPage() {
           />
         </div>
         <div>
-          <label htmlFor="twitter" className="block text-sm font-medium text-gray-300">Twitter URL</label>
+          <label htmlFor="twitter" className="block text-sm font-medium text-gray-300">Twitter Username</label>
           <input
             id="twitter"
-            type="url"
+            type="text"
             value={twitter}
             onChange={(e) => setTwitter(e.target.value)}
             className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="@username"
           />
         </div>
         <div>
-          <label htmlFor="github" className="block text-sm font-medium text-gray-300">GitHub URL</label>
+          <label htmlFor="github" className="block text-sm font-medium text-gray-300">GitHub Username</label>
           <input
             id="github"
-            type="url"
+            type="text"
             value={github}
             onChange={(e) => setGithub(e.target.value)}
             className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="username"
           />
         </div>
         <div>
-          <label htmlFor="farcaster" className="block text-sm font-medium text-gray-300">Farcaster URL</label>
+          <label htmlFor="farcaster" className="block text-sm font-medium text-gray-300">Farcaster Username</label>
           <input
             id="farcaster"
-            type="url"
+            type="text"
             value={farcaster}
             onChange={(e) => setFarcaster(e.target.value)}
             className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="username"
           />
         </div>
         {error && <p className="text-red-500 text-sm">{error}</p>}
