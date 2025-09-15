@@ -1,11 +1,20 @@
 
-const TALENT_PROTOCOL_API_URL = 'https://api.talentprotocol.com';
+import axios from 'axios';
+
+const TALENT_PROTOCOL_API_URL = 'https://api.talentprotocol.com/api/v1';
 
 export async function getBuilderScore(userId: string): Promise<number> {
-  // This is a placeholder function.
-  // The actual implementation will depend on the Talent Protocol API.
-  console.log(`Fetching builder score for user ${userId}...`);
+  try {
+    const response = await axios.get(`${TALENT_PROTOCOL_API_URL}/profiles/${userId}`, {
+      headers: {
+        'Authorization': `Bearer ${process.env.TALENT_PROTOCOL_API_KEY}`,
+      },
+    });
 
-  // Placeholder score
-  return 950;
+    return response.data.builder_score;
+  } catch (error) {
+    console.error('Error fetching builder score:', error);
+    // Return a default score in case of an error
+    return 0;
+  }
 }

@@ -2,14 +2,24 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { FaTwitter, FaGithub } from 'react-icons/fa6';
-import { FaFarcaster } from 'react-icons/fa';
+import { FaTwitter, FaGithub, FaLink } from 'react-icons/fa6';
 import { getBuilderScore } from '@/lib/talent-protocol';
 import { useAuth } from '@/hooks/useAuth';
 import { db } from '@/lib/firebase';
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 
-const buildTypeClasses = {
+type BuildType = 'Launch' | 'Update' | 'Experiment';
+
+interface Build {
+  id: string;
+  type: BuildType;
+  title: string;
+  description: string;
+  tags: string[];
+  link: string;
+}
+
+const buildTypeClasses: Record<BuildType, string> = {
     Launch: 'bg-blue-600',
     Update: 'bg-yellow-600',
     Experiment: 'bg-green-600',
@@ -18,7 +28,7 @@ const buildTypeClasses = {
 export default function ProfilePage() {
   const { user } = useAuth();
   const [profile, setProfile] = useState<any>(null);
-  const [builds, setBuilds] = useState<any[]>([]);
+  const [builds, setBuilds] = useState<Build[]>([]);
   const [builderScore, setBuilderScore] = useState<number | null>(null);
 
   useEffect(() => {
@@ -34,7 +44,7 @@ export default function ProfilePage() {
         const buildsCollection = collection(db, 'builds');
         const q = query(buildsCollection, where('userId', '==', user.uid));
         const buildsSnapshot = await getDocs(q);
-        const buildsData = buildsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const buildsData = buildsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Build));
         setBuilds(buildsData);
       };
 
@@ -63,7 +73,7 @@ export default function ProfilePage() {
           <div className="flex space-x-4 mt-2">
             <a href={profile.socialLinks?.twitter} target="_blank" rel="noopener noreferrer"><FaTwitter /></a>
             <a href={profile.socialLinks?.github} target="_blank" rel="noopener noreferrer"><FaGithub /></a>
-            <a href={profile.socialLinks?.farcaster} target="_blank" rel="noopener noreferrer"><FaFarcaster /></a>
+            <a href={profile.socialLinks?.farcaster} target="_blank" rel="noopener noreferrer"><FaLink /></a>
           </div>
         </div>
         <div className="ml-auto text-right">

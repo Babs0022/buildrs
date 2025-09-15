@@ -9,7 +9,21 @@ import { useAuth } from '@/hooks/useAuth';
 import { upvote, downvote } from '@/lib/votes';
 import CommentSection from '@/components/comments/CommentSection';
 
-const buildTypeClasses = {
+type BuildType = 'Launch' | 'Update' | 'Experiment';
+
+interface Build {
+  id: string;
+  type: BuildType;
+  title: string;
+  description: string;
+  tags: string[];
+  link: string;
+  builder: any; // You might want to define a proper builder type
+  upvotes?: number;
+  downvotes?: number;
+}
+
+const buildTypeClasses: Record<BuildType, string> = {
   Launch: 'bg-blue-600',
   Update: 'bg-yellow-600',
   Experiment: 'bg-green-600',
@@ -17,7 +31,7 @@ const buildTypeClasses = {
 
 export default function FeedPage() {
   const { user } = useAuth();
-  const [builds, setBuilds] = useState<any[]>([]);
+  const [builds, setBuilds] = useState<Build[]>([]);
   const [commentSections, setCommentSections] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
@@ -33,7 +47,7 @@ export default function FeedPage() {
           id: buildDoc.id,
           ...buildData,
           builder: userData,
-        };
+        } as Build;
       }));
       setBuilds(buildsData);
     };
@@ -59,7 +73,7 @@ export default function FeedPage() {
       });
       return () => unsubscribes.forEach(unsub => unsub());
     }
-  }, [builds.length]);
+  }, [builds]);
 
   const handleUpvote = async (buildId: string) => {
     if (!user) {

@@ -3,31 +3,49 @@
 
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, doc, getDoc, query, where } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
+
+interface Build {
+  id: string;
+  userId: string;
+  // Add other build properties as needed
+}
+
+interface Profile {
+  id: string;
+  name: string;
+  avatar: string;
+  // Add other profile properties as needed
+}
+
+interface LeaderboardEntry extends Profile {
+  totalUpvotes: number;
+}
 
 export default function LeaderboardPage() {
-  const [leaderboard, setLeaderboard] = useState<any[]>([]);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
       const buildsCollection = collection(db, 'builds');
       const buildsSnapshot = await getDocs(buildsCollection);
-      const buildsData = buildsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const buildsData = buildsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Build));
 
-      const users = await Promise.all(buildsData.map(build => getDoc(doc(db, 'profiles', build.userId))));
-      const usersData = users.map(user => user.data());
+      const profileIds = [...new Set(buildsData.map(build => build.userId))];
+      const profiles = await Promise.all(profileIds.map(id => getDoc(doc(db, 'profiles', id))));
+      const profilesData = profiles.map(profile => ({ id: profile.id, ...profile.data() } as Profile));
 
       const votesCollection = collection(db, 'votes');
       const votesSnapshot = await getDocs(votesCollection);
       const votesData = votesSnapshot.docs.map(doc => doc.data());
 
-      const userUpvotes = usersData.map(user => {
-        const userBuilds = buildsData.filter(build => build.userId === user.id);
+      const userUpvotes = profilesData.map(profile => {
+        const userBuilds = buildsData.filter(build => build.userId === profile.id);
         const totalUpvotes = userBuilds.reduce((acc, build) => {
           const upvotes = votesData.filter(vote => vote.buildId === build.id && vote.voteType === 'upvote').length;
           return acc + upvotes;
         }, 0);
-        return { ...user, totalUpvotes };
+        return { ...profile, totalUpvotes };
       });
 
       const sortedUsers = userUpvotes.sort((a, b) => b.totalUpvotes - a.totalUpvotes);
