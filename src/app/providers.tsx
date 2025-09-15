@@ -2,32 +2,18 @@
 "use client";
 
 import type { ReactNode } from 'react';
-import { OnchainKitProvider } from '@coinbase/onchainkit';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { WagmiProvider, createConfig, http } from 'wagmi';
-import { mainnet, base } from 'wagmi/chains';
+import dynamic from 'next/dynamic';
 
-const config = createConfig({
-  chains: [mainnet, base],
-  transports: {
-    [mainnet.id]: http(),
-    [base.id]: http(),
-  },
-})
-
-const queryClient = new QueryClient()
+// Dynamically import the client-side providers with SSR turned off
+const DynamicClientProviders = dynamic(
+  () => import('./client-providers').then(mod => mod.ClientProviders),
+  { ssr: false }
+);
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
-    <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
-        <OnchainKitProvider
-          apiKey={process.env.NEXT_PUBLIC_ONCHAINKIT_API_KEY}
-          chain={base}
-        >
-          {children}
-        </OnchainKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+    <DynamicClientProviders>
+      {children}
+    </DynamicClientProviders>
   );
 }
