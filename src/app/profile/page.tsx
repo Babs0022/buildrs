@@ -1,6 +1,7 @@
 
 import { FaTwitter, FaGithub } from 'react-icons/fa6';
 import { FaFarcaster } from 'react-icons/fa';
+import { getBuilderScore } from '@/lib/talent-protocol';
 
 // Placeholder data for the profile
 const profileData = {
@@ -12,7 +13,6 @@ const profileData = {
     github: '#',
     farcaster: '#',
   },
-  builderScore: 950,
   builds: [
     {
       id: 1,
@@ -43,7 +43,9 @@ const buildTypeClasses = {
     Experiment: 'bg-green-600',
   };
 
-export default function ProfilePage() {
+export default async function ProfilePage() {
+  const builderScore = await getBuilderScore('123');
+
   return (
     <div className="container mx-auto p-4">
       <div className="bg-gray-800 rounded-lg p-6 flex items-center space-x-6">
@@ -59,7 +61,7 @@ export default function ProfilePage() {
         </div>
         <div className="ml-auto text-right">
           <div className="text-lg font-bold">Builder Score</div>
-          <div className="text-3xl font-bold text-blue-400">{profileData.builderScore}</div>
+          <div className="text-3xl font-bold text-blue-400">{builderScore}</div>
         </div>
       </div>
 
