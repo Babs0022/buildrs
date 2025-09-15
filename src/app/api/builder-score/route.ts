@@ -20,18 +20,16 @@ export async function GET(req: NextRequest) {
   try {
     const response = await axios.get(`${TALENT_PROTOCOL_API_URL}/profiles/${address}`, {
       headers: {
-        // Use 'X-API-KEY' as per Talent Protocol API documentation
         'X-API-KEY': process.env.TALENT_PROTOCOL_API_KEY,
       },
     });
 
-    // The score is often nested under a 'profile' object
+    // The score is nested under a 'profile' object in the response
     const score = response.data?.profile?.score;
 
     if (score === undefined) {
-        // Log the whole response if the score is not where we expect it
-        console.log('Full response from Talent Protocol:', response.data);
-        return NextResponse.json({ score: 0 });
+      console.log('Full response from Talent Protocol:', response.data);
+      return NextResponse.json({ score: 0 });
     }
 
     return NextResponse.json({ score });
