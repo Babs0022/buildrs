@@ -7,7 +7,7 @@ import { collection, addDoc } from 'firebase/firestore';
 import { useAuth } from '@/hooks/useAuth';
 
 export default function AddBuildPage() {
-  const { user } = useAuth();
+  const { address, isConnected } = useAuth();
   const [buildType, setBuildType] = useState('Launch');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -17,7 +17,7 @@ export default function AddBuildPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!user) {
+    if (!isConnected) {
       alert('You must be logged in to add a build');
       return;
     }
@@ -35,7 +35,7 @@ export default function AddBuildPage() {
         tags: tags.split(',').map(tag => tag.trim()),
         link,
         createdAt: new Date(),
-        userId: user.uid,
+        userId: address,
       });
       alert('Build added successfully!');
       // Clear form

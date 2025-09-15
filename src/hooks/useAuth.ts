@@ -1,20 +1,10 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
-import { auth } from '@/lib/firebase';
-import { onAuthStateChanged, User } from 'firebase/auth';
+import { useAccount } from 'wagmi';
 
 export function useAuth() {
-  const [user, setUser] = useState<User | null>(null);
+  const { address, isConnected } = useAccount();
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  return { user };
+  return { address, isConnected };
 }

@@ -26,15 +26,15 @@ const buildTypeClasses: Record<BuildType, string> = {
   };
 
 export default function ProfilePage() {
-  const { user } = useAuth();
+  const { address, isConnected } = useAuth();
   const [profile, setProfile] = useState<any>(null);
   const [builds, setBuilds] = useState<Build[]>([]);
   const [builderScore, setBuilderScore] = useState<number | null>(null);
 
   useEffect(() => {
-    if (user) {
+    if (isConnected && address) {
       const fetchProfile = async () => {
-        const profileDoc = await getDoc(doc(db, 'profiles', user.uid));
+        const profileDoc = await getDoc(doc(db, 'profiles', address));
         if (profileDoc.exists()) {
           setProfile(profileDoc.data());
         }
@@ -42,14 +42,14 @@ export default function ProfilePage() {
 
       const fetchBuilds = async () => {
         const buildsCollection = collection(db, 'builds');
-        const q = query(buildsCollection, where('userId', '==', user.uid));
+        const q = query(buildsCollection, where('userId', '==', address));
         const buildsSnapshot = await getDocs(q);
         const buildsData = buildsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Build));
         setBuilds(buildsData);
       };
 
       const fetchBuilderScore = async () => {
-        const score = await getBuilderScore(user.uid);
+        const score = await getBuilderScore(address);
         setBuilderScore(score);
       };
 
@@ -57,10 +57,10 @@ export default function ProfilePage() {
       fetchBuilds();
       fetchBuilderScore();
     }
-  }, [user]);
+  }, [isConnected, address]);
 
   if (!profile) {
-    return <div>Loading...</div>;
+    return <div>Please connect your wallet to view your profile.</div>;
   }
 
   return (

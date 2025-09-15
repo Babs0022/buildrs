@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@coinbase/onchainkit": "^1.0.0",
     "axios": "^1.12.2",
     "firebase": "^12.2.1",
     "next": "15.5.3",
