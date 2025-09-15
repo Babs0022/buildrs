@@ -1,5 +1,6 @@
 
-import { FaTwitter, FaGithub, FaFarcaster } from 'react-icons/fa6';
+import { FaTwitter, FaGithub } from 'react-icons/fa6';
+import { FaFarcaster } from 'react-icons/fa';
 
 // Placeholder data for the profile
 const profileData = {
