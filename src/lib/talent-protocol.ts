@@ -1,20 +1,17 @@
 
 import axios from 'axios';
 
-const TALENT_PROTOCOL_API_URL = 'https://api.talentprotocol.com/api/v1';
-
-export async function getBuilderScore(userId: string): Promise<number> {
+export async function getBuilderScore(address: string): Promise<number> {
+  if (!address) {
+    console.error("Address is required to fetch builder score.");
+    return 0;
+  }
   try {
-    const response = await axios.get(`${TALENT_PROTOCOL_API_URL}/profiles/${userId}`, {
-      headers: {
-        'Authorization': `Bearer ${process.env.TALENT_PROTOCOL_API_KEY}`,
-      },
-    });
-
-    return response.data.builder_score;
+    // The client-side function now calls our own API route
+    const response = await axios.get(`/api/builder-score?address=${address}`);
+    return response.data.score || 0;
   } catch (error) {
-    console.error('Error fetching builder score:', error);
-    // Return a default score in case of an error
+    console.error('Error fetching builder score from our API:', error);
     return 0;
   }
 }
