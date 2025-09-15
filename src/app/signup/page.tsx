@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -7,9 +8,7 @@ import { db } from '@/lib/firebase';
 import { doc, setDoc } from 'firebase/firestore';
 
 export default function SignupPage() {
-  const auth = useAuth();
-  const address = auth.address;
-  const isConnected = auth.isConnected;
+  const { address, isConnected, isFirebaseAuthenticated } = useAuth();
   const router = useRouter();
   const [name, setName] = useState('');
   const [bio, setBio] = useState('');
@@ -17,18 +16,28 @@ export default function SignupPage() {
   const [github, setGithub] = useState('');
   const [farcaster, setFarcaster] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsLoading(true);
 
     if (!isConnected || !address) {
       setError('Please connect your wallet first.');
+      setIsLoading(false);
+      return;
+    }
+
+    if (!isFirebaseAuthenticated) {
+      setError('Authenticating with Firebase... please wait.');
+      setIsLoading(false);
       return;
     }
 
     if (!name.trim()) {
       setError('Name is required.');
+      setIsLoading(false);
       return;
     }
 
@@ -51,14 +60,13 @@ export default function SignupPage() {
         avatar: `https://api.dicebear.com/8.x/pixel-art/svg?seed=${address}`
       };
 
-      console.log("Attempting to create profile for address:", address);
-      console.log("Profile data:", JSON.stringify(profileData, null, 2));
-
       await setDoc(doc(db, 'profiles', address), profileData);
       router.push('/profile');
     } catch (err) {
       console.error(err);
       setError('Failed to create profile. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -127,9 +135,10 @@ export default function SignupPage() {
         {error && <p className="text-red-500 text-sm">{error}</p>}
         <button
           type="submit"
-          className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 rounded-md font-bold transition-colors"
+          disabled={!isFirebaseAuthenticated || isLoading}
+          className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 rounded-md font-bold transition-colors disabled:bg-gray-500 disabled:cursor-not-allowed"
         >
-          Create Profile
+          {isLoading ? 'Creating...' : (isFirebaseAuthenticated ? 'Create Profile' : 'Authenticating...')}
         </button>
       </form>
     </div>
