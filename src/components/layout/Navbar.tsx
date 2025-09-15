@@ -4,27 +4,26 @@
 import Link from "next/link";
 import { Wallet } from "@coinbase/onchainkit/wallet";
 import { useAccount } from "wagmi";
-import { useEffect } from "react";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { useEffect, useState } from "react";
+import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 export default function Navbar() {
   const { address, isConnected } = useAccount();
+  const [profileExists, setProfileExists] = useState(false);
 
   useEffect(() => {
-    if (isConnected && address) {
-      const profileRef = doc(db, "profiles", address);
-      getDoc(profileRef).then((docSnap) => {
-        if (!docSnap.exists()) {
-          setDoc(profileRef, {
-            name: "Unnamed Builder",
-            avatar: `https://i.pravatar.cc/150?u=${address}`,
-            bio: "",
-            socialLinks: {},
-          });
-        }
-      });
-    }
+    const checkProfile = async () => {
+      if (isConnected && address) {
+        const profileRef = doc(db, "profiles", address);
+        const docSnap = await getDoc(profileRef);
+        setProfileExists(docSnap.exists());
+      } else {
+        setProfileExists(false);
+      }
+    };
+
+    checkProfile();
   }, [isConnected, address]);
 
   return (
@@ -33,7 +32,15 @@ export default function Navbar() {
       <div className="flex space-x-4 items-center">
         <Link href="/feed">Feed</Link>
         <Link href="/leaderboard">Leaderboard</Link>
-        <Link href="/profile">Profile</Link>
+        {isConnected && (
+          profileExists ? (
+            <Link href="/profile">Profile</Link>
+          ) : (
+            <Link href="/signup" className="px-3 py-2 rounded-md bg-blue-600 hover:bg-blue-700 font-bold">
+              Create Profile
+            </Link>
+          )
+        )}
         <Wallet />
       </div>
     </nav>
