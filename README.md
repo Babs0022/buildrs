@@ -20,6 +20,24 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Setting up Firebase
+
+This project uses [Firebase](https://firebase.google.com) for the database and authentication.
+
+1.  Create a new project on Firebase.
+2.  Create a new Web App in your Firebase project.
+3.  Copy the Firebase configuration object.
+4.  Create a `.env.local` file in the root of the project and add the following environment variables with the values from your Firebase configuration:
+
+    ```
+    NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key_here
+    NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_auth_domain_here
+    NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id_here
+    NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_storage_bucket_here
+    NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id_here
+    NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id_here
+    ```
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
