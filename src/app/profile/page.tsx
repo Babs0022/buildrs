@@ -37,7 +37,8 @@ export default function ProfilePage() {
       const fetchProfile = async () => {
         const profileDoc = await getDoc(doc(db, 'profiles', address));
         if (profileDoc.exists()) {
-          setProfile(profileDoc.data());
+          // Store the profile data along with its ID (the address)
+          setProfile({ id: profileDoc.id, ...profileDoc.data() });
         }
       };
 
@@ -81,7 +82,7 @@ export default function ProfilePage() {
   }
 
   // Check if the logged-in user is viewing their own profile
-  const isOwnProfile = isConnected && address === profile.userId;
+  const isOwnProfile = isConnected && address === profile?.id;
 
   return (
     <div className="container mx-auto p-4">
