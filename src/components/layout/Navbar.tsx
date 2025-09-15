@@ -1,6 +1,11 @@
 
 "use client";
 
+import Link from "next/link";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import ClientOnlyWallet from "./ClientOnlyWallet";
 

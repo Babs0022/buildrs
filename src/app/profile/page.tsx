@@ -9,9 +9,20 @@ import { useAuth } from '@/hooks/useAuth';
 import { db } from '@/lib/firebase';
 import { doc, getDoc, collection, query, where, getDocs, deleteDoc } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
+
+type BuildType = 'Launch' | 'Update' | 'Experiment';
+
+interface Build {
+  id: string;
+  type: BuildType;
+  title: string;
+  description: string;
+  tags: string[];
+  link: string;
+}
 
 // ... (interfaces and type classes remain the same)
 
