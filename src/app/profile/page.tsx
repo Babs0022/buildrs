@@ -21,7 +21,33 @@ export default function ProfilePage() {
   const [builds, setBuilds] = useState<Build[]>([]);
   const [builderScore, setBuilderScore] = useState<number | null>(null);
 
-  // ... (useEffect for fetching data remains the same)
+  useEffect(() => {
+    if (isConnected && address) {
+      const fetchProfile = async () => {
+        const profileDoc = await getDoc(doc(db, 'profiles', address));
+        if (profileDoc.exists()) {
+          setProfile(profileDoc.data());
+        }
+      };
+
+      const fetchBuilds = async () => {
+        const buildsCollection = collection(db, 'builds');
+        const q = query(buildsCollection, where('userId', '==', address));
+        const buildsSnapshot = await getDocs(q);
+        const buildsData = buildsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Build));
+        setBuilds(buildsData);
+      };
+
+      const fetchBuilderScore = async () => {
+        const score = await getBuilderScore(address);
+        setBuilderScore(score);
+      };
+
+      fetchProfile();
+      fetchBuilds();
+      fetchBuilderScore();
+    }
+  }, [isConnected, address]);
 
   const handleDeleteBuild = async (buildId: string) => {
     try {
@@ -38,7 +64,8 @@ export default function ProfilePage() {
     return <div className="text-center p-10">Please connect your wallet to view your profile.</div>;
   }
 
-  const isOwnProfile = isConnected && address === profile.id;
+  // Check if the logged-in user is viewing their own profile
+  const isOwnProfile = isConnected && address === profile.userId;
 
   return (
     <div className="space-y-8">
