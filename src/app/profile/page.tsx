@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { FaTwitter, FaGithub, FaLink } from 'react-icons/fa6';
 import { getBuilderScore } from '@/lib/talent-protocol';
 import { useAuth } from '@/hooks/useAuth';
@@ -79,6 +80,9 @@ export default function ProfilePage() {
         <div className="ml-auto text-right">
           <div className="text-lg font-bold">Builder Score</div>
           <div className="text-3xl font-bold text-blue-400">{builderScore}</div>
+          <Link href="/profile/edit" className="mt-2 inline-block px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-md text-sm font-bold">
+            Edit Profile
+          </Link>
         </div>
       </div>
 
