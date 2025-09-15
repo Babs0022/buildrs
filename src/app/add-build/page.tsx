@@ -6,98 +6,111 @@ import { db } from '@/lib/firebase';
 import { collection, addDoc } from 'firebase/firestore';
 import { useAuth } from '@/hooks/useAuth';
 
+"use client";
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
+import { db } from '@/lib/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { toast } from "sonner";
+
+type BuildType = 'Launch' | 'Update' | 'Experiment';
+
 export default function AddBuildPage() {
-  const { address, isConnected } = useAuth();
-  const [buildType, setBuildType] = useState('Launch');
+  const { user } = useAuth();
+  const router = useRouter();
+
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [tags, setTags] = useState('');
   const [link, setLink] = useState('');
+  const [tags, setTags] = useState('');
+  const [buildType, setBuildType] = useState<BuildType>('Launch');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!isConnected) {
-      alert('You must be logged in to add a build');
+    if (!user) {
+      toast.error("You must be logged in to add a build.");
       return;
     }
-
-    if (!title || !description) {
-      alert('Title and description are required');
-      return;
-    }
+    setIsLoading(true);
 
     try {
       await addDoc(collection(db, 'builds'), {
-        type: buildType,
+        userId: user.uid,
         title,
         description,
-        tags: tags.split(',').map(tag => tag.trim()),
         link,
-        createdAt: new Date(),
-        userId: address,
+        tags: tags.split(',').map(tag => tag.trim()),
+        type: buildType,
+        createdAt: serverTimestamp(),
       });
-      alert('Build added successfully!');
-      // Clear form
-      setBuildType('Launch');
-      setTitle('');
-      setDescription('');
-      setTags('');
-      setLink('');
+      
+      toast.success("Build added successfully!");
+      router.push('/feed');
+
     } catch (error) {
-      console.error('Error adding document: ', error);
-      alert('Error adding build');
+      console.error("Error adding document: ", error);
+      toast.error("Failed to add build. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-4">Add a Build</h1>
-      <form onSubmit={handleSubmit} className="bg-gray-800 p-6 rounded-lg">
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-2">Build Type</label>
-          <div className="flex space-x-2">
-            <button
-              type="button"
-              className={`px-4 py-2 rounded-md ${buildType === 'Launch' ? 'bg-blue-600' : 'bg-gray-700'}`}
-              onClick={() => setBuildType('Launch')}
-            >
-              Launch
-            </button>
-            <button
-              type="button"
-              className={`px-4 py-2 rounded-md ${buildType === 'Update' ? 'bg-yellow-600' : 'bg-gray-700'}`}
-              onClick={() => setBuildType('Update')}
-            >
-              Update
-            </button>
-            <button
-              type="button"
-              className={`px-4 py-2 rounded-md ${buildType === 'Experiment' ? 'bg-green-600' : 'bg-gray-700'}`}
-              onClick={() => setBuildType('Experiment')}
-            >
-              Experiment
-            </button>
-          </div>
-        </div>
-        <div className="mb-4">
-          <label htmlFor="title" className="block text-sm font-medium mb-2">Title</label>
-          <input type="text" id="title" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full bg-gray-700 rounded-md p-2" />
-        </div>
-        <div className="mb-4">
-          <label htmlFor="description" className="block text-sm font-medium mb-2">Description</label>
-          <textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} rows={4} className="w-full bg-gray-700 rounded-md p-2"></textarea>
-        </div>
-        <div className="mb-4">
-          <label htmlFor="tags" className="block text-sm font-medium mb-2">Tags (comma-separated)</label>
-          <input type="text" id="tags" value={tags} onChange={(e) => setTags(e.target.value)} className="w-full bg-gray-700 rounded-md p-2" />
-        </div>
-        <div className="mb-4">
-          <label htmlFor="link" className="block text-sm font-medium mb-2">Link (Demo, Repo, or Screenshot)</label>
-          <input type="text" id="link" value={link} onChange={(e) => setLink(e.target.value)} className="w-full bg-gray-700 rounded-md p-2" />
-        </div>
-        <button type="submit" className="px-6 py-2 bg-blue-600 rounded-md hover:bg-blue-700">Submit</button>
-      </form>
+    <div className="flex justify-center items-center min-h-[calc(100vh-8rem)]">
+      <Card className="w-full max-w-2xl">
+        <CardHeader>
+          <CardTitle>Add a New Build</CardTitle>
+          <CardDescription>Showcase your latest project to the community.</CardDescription>
+        </CardHeader>
+        <form onSubmit={handleSubmit}>
+          <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="title">Title</Label>
+              <Input id="title" placeholder="My Awesome Project" value={title} onChange={(e) => setTitle(e.target.value)} required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Input id="description" placeholder="A brief description of what you built." value={description} onChange={(e) => setDescription(e.target.value)} required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="link">Link</Label>
+              <Input id="link" type="url" placeholder="https://myproject.com" value={link} onChange={(e) => setLink(e.target.value)} required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="tags">Tags (comma-separated)</Label>
+              <Input id="tags" placeholder="AI, SaaS, Next.js" value={tags} onChange={(e) => setTags(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label>Build Type</Label>
+              <div className="flex space-x-4 pt-2">
+                {(['Launch', 'Update', 'Experiment'] as BuildType[]).map((type) => (
+                  <Button
+                    key={type}
+                    type="button"
+                    variant={buildType === type ? 'default' : 'secondary'}
+                    onClick={() => setBuildType(type)}
+                  >
+                    {type}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? 'Submitting...' : 'Submit Build'}
+            </Button>
+          </CardFooter>
+        </form>
+      </Card>
     </div>
   );
 }
+

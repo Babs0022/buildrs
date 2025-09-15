@@ -1,12 +1,13 @@
 
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Instrument_Sans } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import { Providers } from "./providers";
 import '@coinbase/onchainkit/styles.css';
+import { Toaster } from "@/components/ui/sonner";
 
-const inter = Inter({ subsets: ["latin"] });
+const instrumentSans = Instrument_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "BUILDRS",
@@ -16,14 +17,15 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.Node;
+  children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${inter.className} bg-gray-900 text-white`}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={instrumentSans.className}>
         <Providers>
           <Navbar />
-          <main>{children}</main>
+          <main className="container mx-auto p-4">{children}</main>
+          <Toaster />
         </Providers>
       </body>
     </html>
