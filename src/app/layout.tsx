@@ -3,7 +3,8 @@ import { Instrument_Sans } from 'next/font/google';
 import './globals.css';
 import { cn } from '@/lib/utils';
 import { Providers } from './providers';
-import { Navbar } from '@/components/layout/Navbar';
+import { BottomNavbar } from '@/components/layout/BottomNavbar';
+import { TopBar } from '@/components/layout/TopBar';
 
 const instrument = Instrument_Sans({
   subsets: ['latin'],
@@ -12,7 +13,19 @@ const instrument = Instrument_Sans({
 
 export const metadata: Metadata = {
   title: 'BUILDRS',
-  description: 'You are what you build.'
+  description: 'You are what you build.',
+  icons: {
+    icon: '/logo.png',
+  },
+  openGraph: {
+    images: ['/og-image.png'],
+  },
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
 };
 
 export default function RootLayout({
@@ -30,8 +43,9 @@ export default function RootLayout({
       >
         <Providers>
           <div className="relative flex min-h-screen flex-col bg-background">
-            <Navbar />
-            <main className="flex-1">{children}</main>
+            <TopBar />
+            <main className="flex-1 pt-16 pb-16">{children}</main>
+            <BottomNavbar />
           </div>
         </Providers>
       </body>
