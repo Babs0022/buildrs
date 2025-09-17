@@ -8,6 +8,7 @@ import { collection, getDocs, doc, getDoc, query, where, onSnapshot } from 'fire
 import { useAuth } from '@/hooks/useAuth';
 import { upvote, downvote } from '@/lib/votes';
 import CommentSection from '@/components/comments/CommentSection';
+import { BuildCard } from '@/components/BuildCard'; // Import the new BuildCard component
 
 type BuildType = 'Launch' | 'Update' | 'Experiment';
 
@@ -22,12 +23,6 @@ interface Build {
   upvotes?: number;
   downvotes?: number;
 }
-
-const buildTypeClasses: Record<BuildType, string> = {
-  Launch: 'bg-blue-600',
-  Update: 'bg-yellow-600',
-  Experiment: 'bg-green-600',
-};
 
 export default function FeedPage() {
   const { user } = useAuth();
@@ -105,35 +100,26 @@ export default function FeedPage() {
       </div>
       <div className="space-y-4">
         {builds.map((build) => (
-          <div key={build.id} className="bg-gray-800 p-4 rounded-lg">
-            <div className="flex space-x-4">
-              <div className={`w-2 ${buildTypeClasses[build.type]}`}></div>
-              <div className="flex-1">
-                <div className="flex items-center space-x-2 mb-2">
-                  <img src={build.builder.avatar} alt={build.builder.name} className="w-8 h-8 rounded-full" />
-                  <span className="font-bold">{build.builder.name}</span>
-                </div>
-                <h2 className="text-xl font-bold">{build.title}</h2>
-                <p className="text-gray-400">{build.description}</p>
-                <div className="flex space-x-2 mt-2">
-                  {build.tags.map((tag: string) => (
-                    <span key={tag} className="px-2 py-1 bg-gray-700 rounded-md text-sm">{tag}</span>
-                  ))}
-                </div>
-                <div className="flex items-center justify-between mt-4">
-                  <a href={build.link} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">View Build</a>
-                  <div className="flex items-center space-x-4">
-                    <button onClick={() => handleUpvote(build.id)} className="flex items-center space-x-1">
-                      <span>▲</span>
-                      <span>{build.upvotes || 0}</span>
-                    </button>
-                    <button onClick={() => handleDownvote(build.id)} className="flex items-center space-x-1">
-                      <span>▼</span>
-                      <span>{build.downvotes || 0}</span>
-                    </button>
-                    <button onClick={() => toggleCommentSection(build.id)}>Comment</button>
-                  </div>
-                </div>
+          <div key={build.id}>
+            <BuildCard
+              avatarImage={build.builder.avatar}
+              name={build.builder.name}
+              title={build.title}
+              description={build.description}
+              upvotes={build.upvotes || 0}
+            />
+            <div className="flex items-center justify-between mt-4">
+              <a href={build.link} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">View Build</a>
+              <div className="flex items-center space-x-4">
+                <button onClick={() => handleUpvote(build.id)} className="flex items-center space-x-1">
+                  <span>▲</span>
+                  <span>{build.upvotes || 0}</span>
+                </button>
+                <button onClick={() => handleDownvote(build.id)} className="flex items-center space-x-1">
+                  <span>▼</span>
+                  <span>{build.downvotes || 0}</span>
+                </button>
+                <button onClick={() => toggleCommentSection(build.id)}>Comment</button>
               </div>
             </div>
             {commentSections[build.id] && <CommentSection buildId={build.id} />}

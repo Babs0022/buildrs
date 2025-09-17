@@ -4,7 +4,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import {
-  getAuth,
   signInWithCustomToken,
   onAuthStateChanged,
   User,
@@ -24,7 +23,7 @@ type UseAuthReturn = {
 
 export function useAuth(): UseAuthReturn {
   const { address, isConnected } = useAccount();
-  const { connectAsync } = useConnect();
+  const { connectAsync, connectors } = useConnect();
   const { disconnectAsync } = useDisconnect();
   const [isFirebaseAuthenticated, setIsFirebaseAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
@@ -64,9 +63,20 @@ export function useAuth(): UseAuthReturn {
   }, [isConnected, address, isFirebaseAuthenticated]);
 
   const handleSignIn = async () => {
-    // wagmi's connect opens a modal, so we don't need to do much here
-    // but we can wrap it in case we want to add logic later.
-    // This function might not be strictly necessary if the button itself can trigger the connection.
+    try {
+      // Find an injected connector (like MetaMask) or default to the first available one.
+      const connector = connectors.find(c => c.id === 'injected' || c.id === 'metaMask') || connectors[0];
+      if (connector) {
+        await connectAsync({ connector });
+      } else {
+        // Handle the case where no connectors are found.
+        // This could be a console log, or a user-facing message.
+        console.error("No wallet connectors available.");
+        alert("Please install a web3 wallet to continue.");
+      }
+    } catch (error) {
+      console.error("Error connecting wallet: ", error);
+    }
   };
 
   const handleSignOut = async () => {

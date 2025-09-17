@@ -1,11 +1,3 @@
-
-"use client";
-
-import { useState } from 'react';
-import { db } from '@/lib/firebase';
-import { collection, addDoc } from 'firebase/firestore';
-import { useAuth } from '@/hooks/useAuth';
-
 "use client";
 
 import { useState } from 'react';
@@ -113,4 +105,3 @@ export default function AddBuildPage() {
     </div>
   );
 }
-

@@ -3,7 +3,7 @@ import admin from '@/lib/firebaseAdmin';
 
 export async function POST(req: NextRequest) {
   try {
-    const { address } in await req.json();
+    const { address } = await req.json();
 
     if (!address) {
       return NextResponse.json({ error: 'Address is required' }, { status: 400 });
