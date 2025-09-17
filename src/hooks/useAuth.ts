@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useAccount, useConnect, useDisconnect } from 'wagmi';
+import { useAccount, useDisconnect } from 'wagmi';
 import {
   signInWithCustomToken,
   onAuthStateChanged,
@@ -17,13 +17,11 @@ type UseAuthReturn = {
   isConnected: boolean;
   isFirebaseAuthenticated: boolean;
   user: User | null;
-  handleSignIn: () => Promise<void>;
   handleSignOut: () => Promise<void>;
 };
 
 export function useAuth(): UseAuthReturn {
   const { address, isConnected } = useAccount();
-  const { connectAsync, connectors } = useConnect();
   const { disconnectAsync } = useDisconnect();
   const [isFirebaseAuthenticated, setIsFirebaseAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
@@ -62,22 +60,7 @@ export function useAuth(): UseAuthReturn {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isConnected, address, isFirebaseAuthenticated]);
 
-  const handleSignIn = async () => {
-    try {
-      // Find an injected connector (like MetaMask) or default to the first available one.
-      const connector = connectors.find(c => c.id === 'injected' || c.id === 'metaMask') || connectors[0];
-      if (connector) {
-        await connectAsync({ connector });
-      } else {
-        // Handle the case where no connectors are found.
-        // This could be a console log, or a user-facing message.
-        console.error("No wallet connectors available.");
-        alert("Please install a web3 wallet to continue.");
-      }
-    } catch (error) {
-      console.error("Error connecting wallet: ", error);
-    }
-  };
+  
 
   const handleSignOut = async () => {
     await signOut(auth);
@@ -89,7 +72,6 @@ export function useAuth(): UseAuthReturn {
     isConnected,
     isFirebaseAuthenticated,
     user,
-    handleSignIn,
     handleSignOut
   };
 }

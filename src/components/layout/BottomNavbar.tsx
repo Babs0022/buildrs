@@ -8,14 +8,14 @@ import {
   FaHome,
   FaTrophy,
   FaUser,
-  FaSignInAlt,
-  FaSignOutAlt
 } from 'react-icons/fa';
+import { Wallet } from '@coinbase/onchainkit/wallet';
+
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
 export function BottomNavbar() {
-  const { user, handleSignIn, handleSignOut } = useAuth();
+  const { user } = useAuth();
   const pathname = usePathname();
 
   if (!user && pathname === '/') {
@@ -50,27 +50,8 @@ export function BottomNavbar() {
             ))}
         </nav>
         <div className="absolute right-4 flex items-center">
-          {user ? (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleSignOut}
-              className="flex flex-col items-center h-12 justify-center gap-1 px-2 text-xs"
-            >
-              <FaSignOutAlt />
-              <span className="hidden sm:inline-block">Sign Out</span>
-            </Button>
-          ) : (
-            <Button
-              size="sm"
-              onClick={handleSignIn}
-              className="flex flex-col items-center h-12 justify-center gap-1 px-2 text-xs"
-            >
-              <FaSignInAlt />
-              <span className="hidden sm:inline-block">Connect</span>
-            </Button>
-          )}
-        </div>
+  <Wallet />
+</div>
       </div>
     </footer>
   );

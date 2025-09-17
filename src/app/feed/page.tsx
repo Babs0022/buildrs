@@ -12,6 +12,11 @@ import { BuildCard } from '@/components/BuildCard'; // Import the new BuildCard 
 
 type BuildType = 'Launch' | 'Update' | 'Experiment';
 
+interface Builder {
+  avatar: string;
+  name: string;
+}
+
 interface Build {
   id: string;
   type: BuildType;
@@ -19,7 +24,7 @@ interface Build {
   description: string;
   tags: string[];
   link: string;
-  builder: any; // You might want to define a proper builder type
+  builder: Builder;
   upvotes?: number;
   downvotes?: number;
 }

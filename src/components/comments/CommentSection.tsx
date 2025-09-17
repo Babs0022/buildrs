@@ -6,9 +6,18 @@ import { db } from '@/lib/firebase';
 import { collection, addDoc, query, where, onSnapshot, doc, getDoc } from 'firebase/firestore';
 import { useAuth } from '@/hooks/useAuth';
 
+interface Comment {
+  id: string;
+  content: string;
+  author: {
+    avatar: string;
+    name: string;
+  };
+}
+
 export default function CommentSection({ buildId }: { buildId: string }) {
   const { user } = useAuth();
-  const [comments, setComments] = useState<any[]>([]);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
 
   useEffect(() => {

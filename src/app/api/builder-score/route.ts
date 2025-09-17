@@ -35,19 +35,18 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json({ score });
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Log the full error object for detailed debugging
-    if (error.response) {
+    if (axios.isAxiosError(error)) {
       // The request was made and the server responded with a status code
       // that falls out of the range of 2xx
-      console.error('Talent Protocol API Error Status:', error.response.status);
-      console.error('Talent Protocol API Error Data:', JSON.stringify(error.response.data, null, 2));
-    } else if (error.request) {
-      // The request was made but no response was received
-      console.error('Talent Protocol API No Response:', error.request);
-    } else {
+      console.error('Talent Protocol API Error Status:', error.response?.status);
+      console.error('Talent Protocol API Error Data:', JSON.stringify(error.response?.data, null, 2));
+    } else if (error instanceof Error) {
       // Something happened in setting up the request that triggered an Error
       console.error('Talent Protocol API Request Setup Error:', error.message);
+    } else {
+      console.error('An unexpected error occurred:', error);
     }
     return NextResponse.json({ score: 0 });
   }

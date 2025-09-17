@@ -24,11 +24,23 @@ interface Build {
   link: string;
 }
 
+interface Profile {
+  userId: string;
+  name: string;
+  avatar: string;
+  bio: string;
+  socialLinks?: {
+    twitter?: string;
+    github?: string;
+    farcaster?: string;
+  };
+}
+
 // ... (interfaces and type classes remain the same)
 
 export default function ProfilePage() {
   const { address, isConnected } = useAuth();
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [builds, setBuilds] = useState<Build[]>([]);
   const [builderScore, setBuilderScore] = useState<number | null>(null);
 
